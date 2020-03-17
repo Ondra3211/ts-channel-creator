@@ -30,7 +30,6 @@ class Database
             if ($value['uid'] === $uid) {
                 return $value['cid'];
             }
-
         }
     }
 

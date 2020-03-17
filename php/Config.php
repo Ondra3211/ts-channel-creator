@@ -16,7 +16,6 @@ class Config
 
     public function get($key, $value)
     {
-        //return isset($this->config[$key]) ? (isset($this->config[$key][$value]) ? $this->config[$key][$value] : '') : '';
         return $this->exists($key, $value) ? $this->config[$key][$value] : '';
     }
 }
