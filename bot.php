@@ -11,14 +11,14 @@ if (!file_exists(CONFIG_FILE) || filesize(CONFIG_FILE) < 1) {
     exit(1);
 }
 
-TeamSpeak3::init();
-
 msg('Bot Started | Channel Creator');
 msg('PHP ' . PHP_VERSION . ' | TS3Lib ' . TeamSpeak3::LIB_VERSION);
 msg('Bot by Ondra3211 | https://github.com/Ondra3211' . PHP_EOL);
 
 try
 {
+    TeamSpeak3::init();
+
     TeamSpeak3_Helper_Signal::getInstance()->subscribe('notifyClientmoved', 'onMove');
     TeamSpeak3_Helper_Signal::getInstance()->subscribe('serverqueryWaitTimeout', 'onTimeout');
     TeamSpeak3_Helper_Signal::getInstance()->subscribe('notifyChanneldeleted', 'onDelete');
@@ -41,7 +41,7 @@ try
 
     try
     {
-        $ts3->clientGetById($ts3->whoamiGet('client_id'))->move((int) $cf->get('BOT', 'default_channel'));
+        $ts3->clientGetById($ts3->whoamiGet('client_id'))->move((int)$cf->get('BOT', 'default_channel'));
     } catch (TeamSpeak3_Exception $e) {
         msg('Failed to join default channel: ' . $e->getMessage());
     }
@@ -60,13 +60,14 @@ try
 function onMove(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Host $host)
 {
     global $cf, $db;
-    $host = $host->serverGetSelected();
-    $client = $host->clientGetById($event['clid']);
 
-    if ($client->getProperty('client_type') === 1)
+    $client = new TeamSpeak3_Node_Client($host->serverGetSelected(), ['clid' => $event['clid']]);
+
+    if ($client->getProperty('client_type') === 1) {
         return;
+    }
 
-    $uid = strval($client->getProperty('client_unique_identifier'));
+    $uid = (string)$client->getProperty('client_unique_identifier');
 
     if ($event['ctid'] == $cf->get('SETTINGS', 'create_channel')) {
 
@@ -80,7 +81,7 @@ function onMove(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Hos
             for ($i = 0; $i < 10; $i++) {
                 try
                 {
-                    $cid = $host->channelCreate([
+                    $cid = $host->serverGetSelected()->channelCreate([
                         'channel_name' => $name,
                         'channel_topic' => '',
                         'channel_password' => $password,
@@ -89,13 +90,15 @@ function onMove(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Hos
                     ]);
                     break;
                 } catch (TeamSpeak3_Exception $e) {
-                    if ($e->getCode() === 771) {
+                    if ($e->getCode() === 768) {
+                        msg('Channel with ID: ' . $cf->get('SETTINGS', 'main_channel') . ' doesn\'t exists. Cannot create channel');
+                        exit(1);
+                    } elseif ($e->getCode() === 771) {
                         if (mb_strlen($name) >= 39) {
                             $name = mt_rand(0, 9) . mb_substr($name, 0, -1);
                         } else {
                             $name .= mt_rand(0, 9);
                         }
-
                     } elseif ($e->getCode() === 1541) {
                         $name = mb_substr($name, 0, (40 - mb_strlen($name)));
                     }
@@ -111,11 +114,11 @@ function onMove(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Hos
         }
     } elseif ($event['ctid'] == $cf->get('SETTINGS', 'move_channel')) {
 
-        if (!$db->hasChannel($uid))
+        if (!$db->hasChannel($uid)) {
             $client->kick(TeamSpeak3::KICK_CHANNEL, $cf->get('MESSAGES', 'kick_move'));
-        else
+        } else {
             $client->move($db->getChannel($uid));
-
+        }
     }
 }
 
@@ -130,10 +133,9 @@ function onTimeout($seconds, TeamSpeak3_Adapter_ServerQuery $adapter)
     if ($adapter->getQueryLastTimestamp() < (time() - 250)) {
         $adapter->request('clientupdate');
     }
-
 }
 
 function msg($msg = '')
 {
-    echo '[' . date('d.m.Y H:i:s') . '] ' . (string) $msg . PHP_EOL;
+    echo '[' . date('d.m.Y H:i:s') . '] ' . (string)$msg . PHP_EOL;
 }
