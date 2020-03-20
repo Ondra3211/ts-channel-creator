@@ -1,2 +1,3 @@
-/libraries
+/vendor
 /channels.json
+/composer.lock

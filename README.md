@@ -10,9 +10,9 @@ TeamSpeak query bot that creates automatically channel by joing to specific chan
 
 ## Installation
 **Requirements**
-* Install the TS3 PHP Framework by [manually downloading](https://github.com/ronindesign/ts3phpframework/archive/master.zip) it or using Composer:
+* Install the TS3 PHP Framework by using Composer:
 ```
-composer require planetteamspeak/ts3-php-framework
+composer update
 ```
 
 ## Configuration

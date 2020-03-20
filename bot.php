@@ -2,7 +2,7 @@
 define('CONFIG_FILE', __DIR__ . '/config.ini');
 define('DATABASE_FILE', __DIR__ . '/channels.json');
 
-require_once __DIR__ . '/libraries/TeamSpeak3/TeamSpeak3.php';
+require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/php/Config.php';
 require_once __DIR__ . '/php/Database.php';
 
