@@ -1,4 +1,4 @@
-# TeamSpeak Query  bot - Channel Deleter [![GitHub license](https://img.shields.io/github/license/Ondra3211/ts-channel-creator)](https://github.com/Ondra3211/ts-channel-creator/blob/master/LICENSE)
+# TeamSpeak Query  bot - Channel Creator [![GitHub license](https://img.shields.io/github/license/Ondra3211/ts-channel-creator)](https://github.com/Ondra3211/ts-channel-creator/blob/master/LICENSE)
 
 | GIF #1 | GIF #2 |
 | ------------- | ------------- |
